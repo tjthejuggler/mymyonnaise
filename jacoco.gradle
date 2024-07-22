@@ -1,0 +1,44 @@
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = "0.8.7"  // Use the latest version of Jacoco
+    reportsDir = file("$buildDir/reports")
+}
+
+tasks.register('jacocoTestReport', JacocoReport) {
+    dependsOn 'testDebugUnitTest'
+
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports for Debug build"
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    def excludes = [
+            '**/R.class',
+            '**/R$*.class',
+            '**/*$ViewInjector*.*',
+            '**/BuildConfig.*',
+            '**/Manifest*.*',
+            '**/*Test*.*',
+            'android/**/*.*',
+            '**/*Fragment.*',
+            '**/*Activity.*'
+    ]
+
+    classDirectories.setFrom(files([
+            "$buildDir/intermediates/javac/debug/classes",
+            "$buildDir/tmp/kotlin-classes/debug"
+    ]).filter {
+        !excludes.contains(it.name)
+    })
+
+    sourceDirectories.setFrom(files([
+            android.sourceSets.main.java.srcDirs,
+            "src/main/kotlin"
+    ]))
+
+    executionData.setFrom(files("$buildDir/jacoco/testDebugUnitTest.exec"))
+}
