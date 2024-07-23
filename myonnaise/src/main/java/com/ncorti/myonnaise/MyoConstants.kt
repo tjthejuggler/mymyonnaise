@@ -51,3 +51,6 @@ const val MYO_MIN_VALUE = -150.0f
 const val KEEP_ALIVE_INTERVAL_MS = 10000
 
 internal const val TAG = "MYO"
+
+val SERVICE_IMU_DATA_ID = UUID.fromString("d5060405-a904-deb9-4748-2c7f4a124842")
+val CHAR_IMU_DATA_ID = UUID.fromString("d5060405-a904-deb9-4748-2c7f4a124842")

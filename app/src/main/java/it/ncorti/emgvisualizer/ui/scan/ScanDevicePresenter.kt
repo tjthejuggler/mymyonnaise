@@ -118,20 +118,22 @@ class ScanDevicePresenter @Inject constructor(
 
 
     override fun onDeviceSelected(device: Device) {
+        Log.d("ScanDevicePresenter", "Device selected: ${device.name}, ${device.address}")
+        deviceManager.selectedIndex = deviceManager.scannedDeviceList.indexOf(device)
         // Stop scanning
         stopScan()
 
         // Use the bluetoothDevice property of the Device class
-        val myMyo = Myo(device.bluetoothDevice)
+        deviceManager.myo = myonnaise.getMyo(device.bluetoothDevice)
 
         // Attempt to connect to the selected device
-        myMyo.connect(view.getContext())
+        deviceManager.myo?.connect(view.getContext())
 
         // Observe the connection status
-        myMyo.statusObservable()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { status ->
+        statusSubscription = deviceManager.myo?.statusObservable()
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe { status ->
                 when (status) {
                     MyoStatus.CONNECTED -> {
                         view.showConnectedDevice(device)

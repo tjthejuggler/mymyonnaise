@@ -92,12 +92,12 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/ten_grid_size"
         android:layout_margin="@dimen/default_margin"
-        android:enabled="false"
+        android:enabled="true"
         android:minWidth="120dp"
         android:text="@string/connect"
         app:layout_constraintBottom_toTopOf="@+id/device_status"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/device_status" />
+        app:layout_constraintTop_toBottomOf="@+id/info_divider" />
 
     <ProgressBar
         android:id="@+id/progress_connect"
@@ -107,7 +107,7 @@
         android:indeterminate="true"
         app:layout_constraintBottom_toTopOf="@+id/button_connect"
         app:layout_constraintEnd_toStartOf="@+id/button_connect"
-        app:layout_constraintTop_toBottomOf="@+id/button_connect" />
+        app:layout_constraintTop_toBottomOf="@+id/device_status" />
 
     <View
         android:id="@+id/status_divider"
@@ -146,10 +146,11 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/ten_grid_size"
         android:layout_margin="@dimen/default_margin"
-        android:enabled="false"
+        android:enabled="true"
         android:minWidth="120dp"
-        android:text="@string/start"
-        app:layout_constraintBottom_toTopOf="@+id/device_streaming_status"
+        android:text="Start streaming"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/device_frequency_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/device_streaming_status" />
 
@@ -202,7 +203,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/ten_grid_size"
         android:layout_margin="@dimen/default_margin"
-        android:enabled="false"
+        android:enabled="true"
         android:text="@string/vibrate_short"
         app:layout_constraintEnd_toStartOf="@id/button_vibrate_2"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -215,7 +216,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/ten_grid_size"
         android:layout_margin="@dimen/default_margin"
-        android:enabled="false"
+        android:enabled="true"
         android:text="@string/vibrate_medium"
         app:layout_constraintEnd_toStartOf="@id/button_vibrate_3"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -228,12 +229,78 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/ten_grid_size"
         android:layout_margin="@dimen/default_margin"
-        android:enabled="false"
+        android:enabled="true"
         android:text="@string/vibrate_long"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toEndOf="@+id/button_vibrate_2"
         app:layout_constraintTop_toBottomOf="@+id/device_vibrate_label" />
+    <TextView
+        android:id="@+id/emg_data_label"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        android:text="Averaged EMG Data"
+        android:textColor="@color/primaryColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_vibrate_3" />
 
+    <TextView
+        android:id="@+id/emg_data_half_second"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        app:layout_constraintTop_toBottomOf="@+id/emg_data_label" />
 
+    <TextView
+        android:id="@+id/emg_data_one_second"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        app:layout_constraintTop_toBottomOf="@+id/emg_data_half_second" />
+
+    <TextView
+        android:id="@+id/emg_data_five_seconds"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        app:layout_constraintTop_toBottomOf="@+id/emg_data_one_second" />
+    <TextView
+        android:id="@+id/imu_data_label"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        android:text="IMU Data"
+        android:textColor="@color/primaryColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emg_data_five_seconds" />
+
+    <TextView
+        android:id="@+id/imu_data_quaternion"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        app:layout_constraintTop_toBottomOf="@+id/imu_data_label" />
+
+    <TextView
+        android:id="@+id/imu_data_accelerometer"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        app:layout_constraintTop_toBottomOf="@+id/imu_data_quaternion" />
+
+    <TextView
+        android:id="@+id/imu_data_gyroscope"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/default_margin"
+        app:layout_constraintTop_toBottomOf="@+id/imu_data_accelerometer" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -33,7 +33,12 @@ interface ControlDeviceContract {
 
         fun showNotStreaming()
 
+        fun updateEmgData(emgData: FloatArray)
+
         fun showFrequency(frequency: Int)
+
+        fun updateImuData(orientation: FloatArray, accelerometer: FloatArray, gyroscope: FloatArray)
+        fun updateAveragedEmgData(halfSecondAvg: FloatArray, oneSecondAvg: FloatArray, fiveSecondAvg: FloatArray)
     }
 
     abstract class Presenter(override val view: BaseView) : BasePresenter<BaseView>(view) {

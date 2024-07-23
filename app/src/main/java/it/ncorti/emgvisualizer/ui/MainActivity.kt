@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -88,7 +89,7 @@ class MainActivity : DaggerAppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.item_scan -> binding.viewPager.currentItem = 0
-                R.id.item_control -> binding.viewPager.currentItem = 1
+                R.id.item_control -> navigateToControlDevice()
                 R.id.item_graph -> binding.viewPager.currentItem = 2
                 R.id.item_export -> binding.viewPager.currentItem = 3
             }
@@ -97,7 +98,7 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     fun navigateToControlDevice() {
-        // Assuming you're using ViewPager and the control device fragment is at index 1
+        Log.d("Navigation", "Navigating to ControlDeviceFragment")
         binding.viewPager.currentItem = 1
     }
 

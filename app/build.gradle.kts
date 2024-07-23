@@ -43,6 +43,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.8.0")
 
+
     // Update Dagger dependencies
     implementation("com.google.dagger:dagger:2.44")
     implementation("com.google.dagger:dagger-android:2.44")
@@ -54,7 +55,8 @@ dependencies {
     implementation("com.github.AppIntro:AppIntro:6.1.0")
 
     // Myonnaise
-    implementation("com.ncorti:myonnaise:1.0.0")
+    //implementation("com.ncorti:myonnaise:1.0.0")
+    implementation(project(":myonnaise"))
 
     // RxJava
     implementation("io.reactivex.rxjava2:rxjava:2.2.21")
@@ -72,3 +74,4 @@ dependencies {
 
 
 }
+

@@ -18,6 +18,8 @@ import io.reactivex.subjects.BehaviorSubject
 import java.util.LinkedList
 import java.util.concurrent.TimeUnit
 
+
+
 enum class MyoStatus {
     CONNECTED, CONNECTING, READY, DISCONNECTED
 }
@@ -61,6 +63,7 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
     internal val controlStatusSubject: BehaviorSubject<MyoControlStatus> =
         BehaviorSubject.createDefault(MyoControlStatus.NOT_STREAMING)
     internal val dataProcessor: PublishProcessor<FloatArray> = PublishProcessor.create()
+    internal val imuDataProcessor: PublishProcessor<ImuData> = PublishProcessor.create()
 
     internal var gatt: BluetoothGatt? = null
     private var byteReader = ByteReader()
@@ -84,6 +87,7 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
      * @param context A valid application context.
      */
     fun connect(context: Context) {
+        Log.d("Myo", "Attempting to connect to device: ${device.address}")
         connectionStatusSubject.onNext(MyoStatus.CONNECTING)
         gatt = device.connectGatt(context, false, this)
     }
@@ -93,6 +97,7 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
      * Don't forget to disconnect to the device when you're done (you will drain battery otherwise).
      */
     fun disconnect() {
+        Log.d("Myo", "Disconnecting from device: ${device.address}")
         gatt?.close()
         controlStatusSubject.onNext(MyoControlStatus.NOT_STREAMING)
         connectionStatusSubject.onNext(MyoStatus.DISCONNECTED)
@@ -135,10 +140,15 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
         }
     }
 
+    fun imuDataFlowable(): Flowable<ImuData> {
+        return imuDataProcessor
+    }
+
     /**
      * Send a [Command] to the device. Before calling this please make sure the device is connected.
      */
     fun sendCommand(command: Command): Boolean {
+        Log.d("Myo", "Sending command: ${command.contentToString()} to device: ${device.address}")
         characteristicCommand?.apply {
             this.value = command
             if (this.properties == BluetoothGattCharacteristic.PROPERTY_WRITE) {
@@ -147,10 +157,12 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
                 } else if (command.isStopStreamingCommand()) {
                     controlStatusSubject.onNext(MyoControlStatus.NOT_STREAMING)
                 }
-                gatt?.writeCharacteristic(this)
-                return true
+                val result = gatt?.writeCharacteristic(this) ?: false
+                Log.d("Myo", "Command sent, result: $result")
+                return result
             }
         }
+        Log.e("Myo", "Failed to send command")
         return false
     }
 
@@ -175,6 +187,20 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
 
         if (status != BluetoothGatt.GATT_SUCCESS) {
             return
+        }
+        // Find GATT Service for IMU data
+        val serviceImu = gatt.getService(SERVICE_IMU_DATA_ID)
+        serviceImu?.apply {
+            val characteristicImu = getCharacteristic(CHAR_IMU_DATA_ID)
+            characteristicImu?.apply {
+                if (gatt.setCharacteristicNotification(this, true)) {
+                    val descriptor = getDescriptor(CHAR_CLIENT_CONFIG)
+                    descriptor?.apply {
+                        value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        writeDescriptor(gatt, this)
+                    }
+                }
+            }
         }
         // Find GATT Service EMG
         serviceEmg = gatt.getService(SERVICE_EMG_DATA_ID)
@@ -280,13 +306,32 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
     override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
         super.onCharacteristicChanged(gatt, characteristic)
 
-        if (characteristic.uuid.toString().endsWith(CHAR_EMG_POSTFIX)) {
-            val emgData = characteristic.value
-            byteReader.byteData = emgData
+        when {
+            characteristic.uuid.toString().endsWith(CHAR_EMG_POSTFIX) -> {
+                val emgData = characteristic.value
+                byteReader.byteData = emgData
 
-            // We receive 16 bytes of data. Let's cut them in 2 and deliver both of them.
-            dataProcessor.onNext(byteReader.getBytes(EMG_ARRAY_SIZE / 2))
-            dataProcessor.onNext(byteReader.getBytes(EMG_ARRAY_SIZE / 2))
+                // We receive 16 bytes of data. Let's cut them in 2 and deliver both of them.
+                dataProcessor.onNext(byteReader.getBytes(EMG_ARRAY_SIZE / 2))
+                dataProcessor.onNext(byteReader.getBytes(EMG_ARRAY_SIZE / 2))
+            }
+
+            characteristic.uuid == CHAR_IMU_DATA_ID -> {
+                Log.d("Myo", "IMU data received")
+
+                val imuData = characteristic.value
+                byteReader.byteData = imuData
+
+                val orientation = FloatArray(4) { byteReader.short.toFloat() / 16384f }
+                val accelerometer = FloatArray(3) { byteReader.short.toFloat() / 2048f }
+                val gyroscope = FloatArray(3) { byteReader.short.toFloat() / 16f }
+
+                imuDataProcessor.onNext(ImuData(orientation, accelerometer, gyroscope))
+            }
+
+            else -> {
+                Log.d("Myo", "Unknown characteristic changed: ${characteristic.uuid}")
+            }
         }
 
         // Finally check if keep alive makes sense.

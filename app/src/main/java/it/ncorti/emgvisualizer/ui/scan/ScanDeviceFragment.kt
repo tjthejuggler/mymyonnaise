@@ -157,7 +157,7 @@ class ScanDeviceFragment : DaggerFragment(), ScanDeviceContract.View {
     }
 
     override fun navigateToControlDevice() {
-        (activity as MainActivity).navigateToPage(1)
+        (activity as? MainActivity)?.navigateToControlDevice()
     }
 
     class DeviceAdapter(
