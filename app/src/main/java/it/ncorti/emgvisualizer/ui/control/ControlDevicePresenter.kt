@@ -23,6 +23,7 @@ class ControlDevicePresenter @Inject constructor(
     private val deviceManager: DeviceManager
 ) : ControlDeviceContract.Presenter(view) {
 
+    private val TAG = "ControlDevicePresenter"
 
     private val emgDataBuffer = LinkedList<FloatArray>()
     private val bufferSizeHalfSecond = 100 // Assuming 200Hz sampling rate
@@ -134,12 +135,48 @@ class ControlDevicePresenter @Inject constructor(
         deviceManager.myo?.apply {
             if (!this.isStreaming()) {
                 startStreaming()
+                startImuStreaming()
             } else {
                 stopStreaming()
             }
         } ?: Log.e("ControlDevicePresenter", "Myo object is null when trying to toggle streaming")
     }
+    fun startImuStreaming() {
+        Log.d(TAG, "Attempting to start IMU streaming")
+        deviceManager.myo?.apply {
+            if (isImuCharacteristicSetUp()) {
+                val command = byteArrayOf(0x01, 0x03, 0x03, 0x01, 0x01) // Changed to enable both EMG and IMU
+                Log.d(TAG, "Sending IMU streaming command: ${command.contentToString()}")
+                val success = this.sendCommandWithRetry(command) // Use the new retry method
+                Log.d(TAG, "IMU streaming command sent: $success")
+                if (success) {
+                    subscribeToImuData()
+                } else {
+                    Log.e(TAG, "Failed to send IMU streaming command")
+                    Log.e(TAG, "Myo connection state: ${this.isConnected()}")
+                    Log.e(TAG, "Myo streaming state: ${this.isStreaming()}")
+                }
+            } else {
+                Log.e(TAG, "IMU characteristic is not properly set up")
+            }
+        } ?: Log.e(TAG, "Myo object is null when trying to start IMU streaming")
+    }
 
+    private fun subscribeToImuData() {
+        Log.d(TAG, "Subscribing to IMU data")
+        imuSubscription = deviceManager.getImuDataFlowable()
+            ?.subscribeOn(Schedulers.computation())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe({ imuData: ImuData ->
+                Log.d(TAG, "IMU data received: orientation=${imuData.orientation.contentToString()}, " +
+                        "accelerometer=${imuData.accelerometer.contentToString()}, " +
+                        "gyroscope=${imuData.gyroscope.contentToString()}")
+                view.updateImuData(imuData.orientation, imuData.accelerometer, imuData.gyroscope)
+            }, { error: Throwable ->
+                Log.e(TAG, "Error receiving IMU data", error)
+            })
+        Log.d(TAG, "IMU subscription created: ${imuSubscription != null}")
+    }
     private fun startStreaming() {
         Log.d("ControlDevicePresenter", "Starting EMG streaming")
         deviceManager.myo?.apply {
@@ -179,21 +216,7 @@ class ControlDevicePresenter @Inject constructor(
     }
 
 
-    private fun subscribeToImuData() {
-        Log.d("ControlDevicePresenter", "Subscribing to IMU data")
-        imuSubscription = deviceManager.getImuDataFlowable()
-            ?.subscribeOn(Schedulers.computation())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({ imuData: ImuData ->
 
-                for(i in 0..2) {
-                    Log.d("ControlDevicePresenter", "IMU data received: ${imuData.orientation[i]}")
-                }
-                view.updateImuData(imuData.orientation, imuData.accelerometer, imuData.gyroscope)
-            }, { error: Throwable ->
-                Log.e("ControlDevicePresenter", "Error receiving IMU data", error)
-            })
-    }
 
     private fun unsubscribeFromImuData() {
         Log.d("ControlDevicePresenter", "Unsubscribing from IMU data")

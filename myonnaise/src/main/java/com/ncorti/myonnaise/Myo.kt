@@ -15,7 +15,10 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.subjects.BehaviorSubject
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.LinkedList
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 
@@ -148,24 +151,33 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
      * Send a [Command] to the device. Before calling this please make sure the device is connected.
      */
     fun sendCommand(command: Command): Boolean {
-        Log.d("Myo", "Sending command: ${command.contentToString()} to device: ${device.address}")
+        Log.d(TAG, "Attempting to send command: ${command.contentToString()} to device: ${device.address}")
         characteristicCommand?.apply {
             this.value = command
-            if (this.properties == BluetoothGattCharacteristic.PROPERTY_WRITE) {
+            if (this.properties and BluetoothGattCharacteristic.PROPERTY_WRITE != 0) {
                 if (command.isStartStreamingCommand()) {
                     controlStatusSubject.onNext(MyoControlStatus.STREAMING)
                 } else if (command.isStopStreamingCommand()) {
                     controlStatusSubject.onNext(MyoControlStatus.NOT_STREAMING)
                 }
                 val result = gatt?.writeCharacteristic(this) ?: false
-                Log.d("Myo", "Command sent, result: $result")
+                Log.d(TAG, "Command sent, result: $result. Characteristic UUID: ${this.uuid}")
                 return result
+            } else {
+                Log.e(TAG, "Command characteristic does not have PROPERTY_WRITE")
             }
-        }
-        Log.e("Myo", "Failed to send command")
+        } ?: Log.e(TAG, "Command characteristic is null")
         return false
     }
-
+    fun sendCommandWithRetry(command: ByteArray, maxRetries: Int = 3): Boolean {
+        for (i in 0 until maxRetries) {
+            if (sendCommand(command)) {
+                return true
+            }
+            Thread.sleep(100) // Wait a bit before retrying
+        }
+        return false
+    }
     override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
         super.onConnectionStateChange(gatt, status, newState)
         Log.d(TAG, "onConnectionStateChange: $status -> $newState")
@@ -188,20 +200,29 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
         if (status != BluetoothGatt.GATT_SUCCESS) {
             return
         }
-        // Find GATT Service for IMU data
-        val serviceImu = gatt.getService(SERVICE_IMU_DATA_ID)
-        serviceImu?.apply {
-            val characteristicImu = getCharacteristic(CHAR_IMU_DATA_ID)
-            characteristicImu?.apply {
-                if (gatt.setCharacteristicNotification(this, true)) {
-                    val descriptor = getDescriptor(CHAR_CLIENT_CONFIG)
-                    descriptor?.apply {
-                        value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                        writeDescriptor(gatt, this)
-                    }
-                }
-            }
+// Add this log
+        Log.d(TAG, "Discovered services: ${gatt.services.joinToString { it.uuid.toString() }}")
+
+        // Enable IMU data
+        val imuService = gatt.getService(UUID.fromString(IMU_DATA_SERVICE_UUID))
+        Log.d(TAG, "IMU Service found: ${imuService != null}")
+
+        val imuCharacteristic = imuService?.getCharacteristic(UUID.fromString(IMU_DATA_CHARACTERISTIC_UUID))
+        Log.d(TAG, "IMU Characteristic found: ${imuCharacteristic != null}")
+
+        if (imuCharacteristic != null) {
+            Log.d(TAG, "IMU Characteristic properties: ${imuCharacteristic.properties}")
+            Log.d(TAG, "IMU Characteristic permissions: ${imuCharacteristic.permissions}")
         }
+        imuCharacteristic?.let { characteristic ->
+            gatt.setCharacteristicNotification(characteristic, true)
+            val descriptor = characteristic.getDescriptor(UUID.fromString(CHARACTERISTIC_CONFIG))
+            descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            gatt.writeDescriptor(descriptor)
+        }
+
+        // Send command to enable IMU streaming
+        sendCommand(byteArrayOf(0x01, 0x03, 0x02, 0x01, 0x01))
         // Find GATT Service EMG
         serviceEmg = gatt.getService(SERVICE_EMG_DATA_ID)
         serviceEmg?.apply {
@@ -249,6 +270,22 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
                 // We send the ready event as soon as the characteristicCommand is ready.
                 connectionStatusSubject.onNext(MyoStatus.READY)
             }
+        }
+
+        initializeCommandCharacteristic()
+    }
+
+    private fun initializeCommandCharacteristic() {
+        Log.d(TAG, "Initializing command characteristic")
+        val controlService = gatt?.getService(UUID.fromString(SERVICE_CONTROL_ID.toString()))
+        Log.d(TAG, "Control service found: ${controlService != null}")
+
+        characteristicCommand = controlService?.getCharacteristic(UUID.fromString(CHAR_COMMAND_ID.toString()))
+        Log.d(TAG, "Command characteristic found: ${characteristicCommand != null}")
+
+        if (characteristicCommand != null) {
+            Log.d(TAG, "Command characteristic properties: ${characteristicCommand?.properties}")
+            Log.d(TAG, "Command characteristic permissions: ${characteristicCommand?.permissions}")
         }
     }
 
@@ -304,6 +341,8 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
     }
 
     override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+        Log.d(TAG, "Characteristic changed: ${characteristic.uuid}, value: ${characteristic.value.contentToString()}")
+
         super.onCharacteristicChanged(gatt, characteristic)
 
         when {
@@ -316,17 +355,29 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
                 dataProcessor.onNext(byteReader.getBytes(EMG_ARRAY_SIZE / 2))
             }
 
-            characteristic.uuid == CHAR_IMU_DATA_ID -> {
-                Log.d("Myo", "IMU data received")
+            characteristic.uuid.toString() == IMU_DATA_CHARACTERISTIC_UUID -> {
+                val data = characteristic.value
+                val byteBuffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN)
 
-                val imuData = characteristic.value
-                byteReader.byteData = imuData
+                val qw = byteBuffer.short.toFloat() / MYOHW_ORIENTATION_SCALE
+                val qx = byteBuffer.short.toFloat() / MYOHW_ORIENTATION_SCALE
+                val qy = byteBuffer.short.toFloat() / MYOHW_ORIENTATION_SCALE
+                val qz = byteBuffer.short.toFloat() / MYOHW_ORIENTATION_SCALE
 
-                val orientation = FloatArray(4) { byteReader.short.toFloat() / 16384f }
-                val accelerometer = FloatArray(3) { byteReader.short.toFloat() / 2048f }
-                val gyroscope = FloatArray(3) { byteReader.short.toFloat() / 16f }
+                val accX = byteBuffer.short.toFloat() / MYOHW_ACCELEROMETER_SCALE
+                val accY = byteBuffer.short.toFloat() / MYOHW_ACCELEROMETER_SCALE
+                val accZ = byteBuffer.short.toFloat() / MYOHW_ACCELEROMETER_SCALE
 
-                imuDataProcessor.onNext(ImuData(orientation, accelerometer, gyroscope))
+                val gyroX = byteBuffer.short.toFloat() / MYOHW_GYROSCOPE_SCALE
+                val gyroY = byteBuffer.short.toFloat() / MYOHW_GYROSCOPE_SCALE
+                val gyroZ = byteBuffer.short.toFloat() / MYOHW_GYROSCOPE_SCALE
+
+                val imuData = ImuData(
+                    floatArrayOf(qw, qx, qy, qz),
+                    floatArrayOf(accX, accY, accZ),
+                    floatArrayOf(gyroX, gyroY, gyroZ)
+                )
+                imuDataProcessor.onNext(imuData)
             }
 
             else -> {
@@ -340,5 +391,12 @@ class Myo(private val device: BluetoothDevice) : BluetoothGattCallback() {
             lastKeepAlive = currentTimeMillis
             sendCommand(CommandList.unSleep())
         }
+    }
+
+    fun isImuCharacteristicSetUp(): Boolean {
+        val imuService = gatt?.getService(UUID.fromString(IMU_DATA_SERVICE_UUID))
+        val imuCharacteristic = imuService?.getCharacteristic(UUID.fromString(IMU_DATA_CHARACTERISTIC_UUID))
+        return imuCharacteristic != null &&
+                gatt?.setCharacteristicNotification(imuCharacteristic, true) == true
     }
 }

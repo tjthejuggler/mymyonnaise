@@ -35,7 +35,10 @@ class DeviceManager @Inject constructor() {
         }
 
     fun getImuDataFlowable(): Flowable<ImuData>? {
-        return myo?.imuDataFlowable()
+        Log.d("DeviceManager", "getImuDataFlowable called")
+        return myo?.imuDataFlowable()?.also {
+            Log.d("DeviceManager", "IMU data flowable created")
+        }
     }
 
     var connected: Boolean = false
