@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
+import com.google.android.material.slider.RangeSlider
 import it.ncorti.emgvisualizer.R
 import it.ncorti.emgvisualizer.ui.control.ControlDevicePresenter
 import java.net.DatagramPacket
@@ -41,6 +42,22 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
 
     private var lastImuData: Map<String, Float> = emptyMap()
 
+    private val rangeSliders = mutableMapOf<String, RangeSlider>()
+    private val rangeValues = mutableMapOf<String, Pair<Float, Float>>()
+
+    // Define initial ranges for each IMU data type
+    private val initialRanges = mapOf(
+        "orientationW" to Pair(-1f, 1f),
+        "orientationX" to Pair(-1f, 1f),
+        "orientationY" to Pair(-1f, 1f),
+        "orientationZ" to Pair(-1f, 1f),
+        "accelerometerX" to Pair(-20f, 20f),
+        "accelerometerY" to Pair(-20f, 20f),
+        "accelerometerZ" to Pair(-20f, 20f),
+        "gyroscopeX" to Pair(-500f, 500f),
+        "gyroscopeY" to Pair(-500f, 500f),
+        "gyroscopeZ" to Pair(-500f, 500f)
+    )
     companion object {
         fun newInstance() = BallsFragment()
     }
@@ -66,6 +83,37 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
 
         setupIpControls()
         setupDataPointsUI(view)
+
+        setupRangeSliders(view)
+    }
+
+    private fun setupRangeSliders(view: View) {
+        val imuDataPoints = listOf(
+            "orientationW", "orientationX", "orientationY", "orientationZ",
+            "accelerometerX", "accelerometerY", "accelerometerZ",
+            "gyroscopeX", "gyroscopeY", "gyroscopeZ"
+        )
+
+        imuDataPoints.forEach { dataPoint ->
+            val sliderId = resources.getIdentifier("${dataPoint}RangeSlider", "id", requireContext().packageName)
+            val slider = view.findViewById<RangeSlider>(sliderId)
+            rangeSliders[dataPoint] = slider
+
+            // Set initial range
+            val (min, max) = initialRanges[dataPoint] ?: Pair(0f, 1f)
+            slider.valueFrom = min
+            slider.valueTo = max
+            slider.setValues(min, max)  // Set initial selected range to full range
+
+            slider.addOnChangeListener { slider, _, _ ->
+                val values = slider.values
+                rangeValues[dataPoint] = Pair(values[0], values[1])
+                updateBallColors(lastImuData)
+            }
+
+            // Initialize range values
+            rangeValues[dataPoint] = Pair(min, max)
+        }
     }
 
     private fun setupIpControls() {
@@ -171,6 +219,7 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
         // Send color change command to the ball
         sendColorChange(ip, color)
     }
+
     private fun setupDataPointsUI(view: View) {
         val imuDataPoints = listOf(
             "orientationW", "orientationX", "orientationY", "orientationZ",
@@ -192,12 +241,7 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
                 val selectedIp = ballIpSpinner.selectedItem as? String
                 if (selectedIp != null) {
                     checkBoxStates[selectedIp]?.put(dataPoint, isChecked)
-                    if (isChecked) {
-                        val colors = colorButtons[selectedIp]?.get(dataPoint)
-                        if (colors != null) {
-                            sendColorChange(selectedIp, calculateCurrentColor(selectedIp))
-                        }
-                    }
+                    updateBallColor(selectedIp)
                 }
             }
 
@@ -206,41 +250,6 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
         }
     }
 
-
-    private fun calculateCurrentColor(ip: String): Int {
-        var hasCheckedItem = false
-        var interpolatedColor = Color.GRAY
-
-        checkBoxStates[ip]?.forEach { (dataPoint, isChecked) ->
-            if (isChecked) {
-                hasCheckedItem = true
-                val (lowColor, highColor) = colorButtons[ip]?.get(dataPoint) ?: return@forEach
-                val normalizedValue = normalizeImuValue(dataPoint, lastImuData[dataPoint] ?: 0f)
-                val dataPointColor = interpolateColor(lowColor, highColor, normalizedValue)
-                interpolatedColor = blendColors(interpolatedColor, dataPointColor)
-            }
-        }
-
-        return if (hasCheckedItem) interpolatedColor else Color.GRAY
-    }
-
-//    private fun setupColorsForNewIp(ip: String) {
-//        val newColorButtons = mutableMapOf<String, Pair<Int, Int>>()
-//        checkBoxes.keys.forEach { dataPoint ->
-//            newColorButtons[dataPoint] = Pair(Color.WHITE, Color.BLACK)
-//        }
-//        colorButtons[ip] = newColorButtons
-//    }
-//
-//    private fun updateColorsForSelectedIp(ip: String) {
-//        colorButtons[ip]?.forEach { (dataPoint, colors) ->
-//            val lowColorButton = view?.findViewById<Button>(resources.getIdentifier("${dataPoint}LowColor", "id", requireContext().packageName))
-//            val highColorButton = view?.findViewById<Button>(resources.getIdentifier("${dataPoint}HighColor", "id", requireContext().packageName))
-//
-//            lowColorButton?.setBackgroundColor(colors.first)
-//            highColorButton?.setBackgroundColor(colors.second)
-//        }
-//    }
 
     private fun showColorPickerDialog(dataPoint: String, isLowColor: Boolean) {
         val selectedIp = ballIpSpinner.selectedItem as? String ?: return
@@ -253,6 +262,7 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
             .density(12)
             .setPositiveButton("Ok") { _, selectedColor, _ ->
                 updateButtonColor(selectedIp, dataPoint, isLowColor, selectedColor)
+                updateBallColor(selectedIp)
             }
             .setNegativeButton("Cancel") { _, _ -> }
             .build()
@@ -269,6 +279,11 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
         else
             view?.findViewById<Button>(resources.getIdentifier("${dataPoint}HighColor", "id", requireContext().packageName))
         viewButton?.setBackgroundColor(color)
+    }
+
+    private fun updateBallColor(ip: String) {
+        val color = calculateCurrentColor(ip)
+        updatePreviewCircle(ip, color)
     }
 
     private fun sendColorChange(ipAddress: String, color: Int) {
@@ -318,15 +333,18 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
             // We don't need to call sendColorChange here anymore, as it's called in updatePreviewCircle
         }
     }
+//    private fun normalizeImuValue(dataPoint: String, value: Float): Float {
+//        return when {
+//            dataPoint.startsWith("orientation") -> (value + 1) / 2 // Orientation values are typically between -1 and 1
+//            dataPoint.startsWith("accelerometer") -> (value + 20) / 40 // Assuming accelerometer range of -20 to 20
+//            dataPoint.startsWith("gyroscope") -> (value + 500) / 1000 // Assuming gyroscope range of -500 to 500
+//            else -> 0.5f // Default to middle value if unknown
+//        }.coerceIn(0f, 1f)
+//    }
     private fun normalizeImuValue(dataPoint: String, value: Float): Float {
-        return when {
-            dataPoint.startsWith("orientation") -> (value + 1) / 2 // Orientation values are typically between -1 and 1
-            dataPoint.startsWith("accelerometer") -> (value + 20) / 40 // Assuming accelerometer range of -20 to 20
-            dataPoint.startsWith("gyroscope") -> (value + 500) / 1000 // Assuming gyroscope range of -500 to 500
-            else -> 0.5f // Default to middle value if unknown
-        }.coerceIn(0f, 1f)
+        val (min, max) = rangeValues[dataPoint] ?: return 0.5f
+        return ((value - min) / (max - min)).coerceIn(0f, 1f)
     }
-
     private fun blendColors(color1: Int, color2: Int): Int {
         val r = (Color.red(color1) + Color.red(color2)) / 2
         val g = (Color.green(color1) + Color.green(color2)) / 2
@@ -342,10 +360,51 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
         }
     }
 
+    private fun calculateCurrentColor(ip: String): Int {
+        var hasCheckedItem = false
+        var r = 0
+        var g = 0
+        var b = 0
+        var totalWeight = 0f
+
+        checkBoxStates[ip]?.forEach { (dataPoint, isChecked) ->
+            if (isChecked) {
+                hasCheckedItem = true
+                val (lowColor, highColor) = colorButtons[ip]?.get(dataPoint) ?: return@forEach
+                val normalizedValue = normalizeImuValue(dataPoint, lastImuData[dataPoint] ?: 0f)
+
+                // If low and high colors are the same, use that color directly
+                if (lowColor == highColor) {
+                    r += Color.red(lowColor)
+                    g += Color.green(lowColor)
+                    b += Color.blue(lowColor)
+                    totalWeight += 1f
+                } else {
+                    // Interpolate between low and high colors
+                    val dataPointColor = interpolateColor(lowColor, highColor, normalizedValue)
+                    r += Color.red(dataPointColor)
+                    g += Color.green(dataPointColor)
+                    b += Color.blue(dataPointColor)
+                    totalWeight += 1f
+                }
+            }
+        }
+
+        return if (hasCheckedItem) {
+            Color.rgb(
+                (r / totalWeight).toInt().coerceIn(0, 255),
+                (g / totalWeight).toInt().coerceIn(0, 255),
+                (b / totalWeight).toInt().coerceIn(0, 255)
+            )
+        } else {
+            Color.GRAY
+        }
+    }
+
     private fun interpolateColor(lowColor: Int, highColor: Int, fraction: Float): Int {
-        val r = (Color.red(lowColor) * (1 - fraction) + Color.red(highColor) * fraction).toInt()
-        val g = (Color.green(lowColor) * (1 - fraction) + Color.green(highColor) * fraction).toInt()
-        val b = (Color.blue(lowColor) * (1 - fraction) + Color.blue(highColor) * fraction).toInt()
+        val r = (Color.red(lowColor) * (1 - fraction) + Color.red(highColor) * fraction).toInt().coerceIn(0, 255)
+        val g = (Color.green(lowColor) * (1 - fraction) + Color.green(highColor) * fraction).toInt().coerceIn(0, 255)
+        val b = (Color.blue(lowColor) * (1 - fraction) + Color.blue(highColor) * fraction).toInt().coerceIn(0, 255)
         return Color.rgb(r, g, b)
     }
 }

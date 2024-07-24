@@ -54,6 +54,7 @@
             app:layout_constraintTop_toBottomOf="@id/newIpEditText"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <!-- Orientation W -->
         <CheckBox
             android:id="@+id/orientationWCheckBox"
             android:layout_width="wrap_content"
@@ -88,12 +89,24 @@
             app:layout_constraintStart_toEndOf="@id/orientationWLowColor"
             android:layout_marginStart="16dp"/>
 
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/orientationWRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/orientationWHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
+
+        <!-- Orientation X -->
         <CheckBox
             android:id="@+id/orientationXCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Orientation X"
-            app:layout_constraintTop_toBottomOf="@id/orientationWHighColor"
+            app:layout_constraintTop_toBottomOf="@id/orientationWRangeSlider"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -122,12 +135,24 @@
             app:layout_constraintStart_toEndOf="@id/orientationXLowColor"
             android:layout_marginStart="16dp"/>
 
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/orientationXRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/orientationXHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
+
+        <!-- Orientation Y -->
         <CheckBox
             android:id="@+id/orientationYCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Orientation Y"
-            app:layout_constraintTop_toBottomOf="@id/orientationXHighColor"
+            app:layout_constraintTop_toBottomOf="@id/orientationXRangeSlider"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -156,12 +181,24 @@
             app:layout_constraintStart_toEndOf="@id/orientationYLowColor"
             android:layout_marginStart="16dp"/>
 
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/orientationYRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/orientationYHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
+
+        <!-- Orientation Z -->
         <CheckBox
             android:id="@+id/orientationZCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Orientation Z"
-            app:layout_constraintTop_toBottomOf="@id/orientationYHighColor"
+            app:layout_constraintTop_toBottomOf="@id/orientationYRangeSlider"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -190,12 +227,24 @@
             app:layout_constraintStart_toEndOf="@id/orientationZLowColor"
             android:layout_marginStart="16dp"/>
 
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/orientationZRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/orientationZHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
+
+        <!-- Accelerometer X -->
         <CheckBox
             android:id="@+id/accelerometerXCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Accelerometer X"
-            app:layout_constraintTop_toBottomOf="@id/orientationZHighColor"
+            app:layout_constraintTop_toBottomOf="@id/orientationZRangeSlider"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -224,12 +273,24 @@
             app:layout_constraintStart_toEndOf="@id/accelerometerXLowColor"
             android:layout_marginStart="16dp"/>
 
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/accelerometerXRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerXHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
+
+        <!-- Accelerometer Y -->
         <CheckBox
             android:id="@+id/accelerometerYCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Accelerometer Y"
-            app:layout_constraintTop_toBottomOf="@id/accelerometerXHighColor"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerXRangeSlider"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -258,12 +319,24 @@
             app:layout_constraintStart_toEndOf="@id/accelerometerYLowColor"
             android:layout_marginStart="16dp"/>
 
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/accelerometerYRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerYHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
+
+        <!-- Accelerometer Z -->
         <CheckBox
             android:id="@+id/accelerometerZCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Accelerometer Z"
-            app:layout_constraintTop_toBottomOf="@id/accelerometerYHighColor"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerYRangeSlider"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -292,12 +365,24 @@
             app:layout_constraintStart_toEndOf="@id/accelerometerZLowColor"
             android:layout_marginStart="16dp"/>
 
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/accelerometerZRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerZHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
+
+        <!-- Gyroscope X -->
         <CheckBox
             android:id="@+id/gyroscopeXCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Gyroscope X"
-            app:layout_constraintTop_toBottomOf="@id/accelerometerZHighColor"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerZRangeSlider"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -326,12 +411,24 @@
             app:layout_constraintStart_toEndOf="@id/gyroscopeXLowColor"
             android:layout_marginStart="16dp"/>
 
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/gyroscopeXRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeXHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
+
+        <!-- Gyroscope Y -->
         <CheckBox
             android:id="@+id/gyroscopeYCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Gyroscope Y"
-            app:layout_constraintTop_toBottomOf="@id/gyroscopeXHighColor"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeXRangeSlider"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -360,12 +457,24 @@
             app:layout_constraintStart_toEndOf="@id/gyroscopeYLowColor"
             android:layout_marginStart="16dp"/>
 
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/gyroscopeYRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeYHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
+
+        <!-- Gyroscope Z -->
         <CheckBox
             android:id="@+id/gyroscopeZCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Gyroscope Z"
-            app:layout_constraintTop_toBottomOf="@id/gyroscopeYHighColor"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeYRangeSlider"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
@@ -393,6 +502,17 @@
             app:layout_constraintTop_toBottomOf="@id/gyroscopeZLabel"
             app:layout_constraintStart_toEndOf="@id/gyroscopeZLowColor"
             android:layout_marginStart="16dp"/>
+
+        <com.google.android.material.slider.RangeSlider
+            android:id="@+id/gyroscopeZRangeSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeZHighColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:labelBehavior="withinBounds"
+            app:minSeparation="0.1dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
