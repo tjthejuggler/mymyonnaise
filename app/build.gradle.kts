@@ -72,6 +72,8 @@ dependencies {
     // Mockito Kotlin
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 
+    implementation("com.github.QuadFlask:colorpicker:0.0.15")
+
 
 }
 

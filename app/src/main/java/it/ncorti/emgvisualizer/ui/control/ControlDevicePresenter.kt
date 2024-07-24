@@ -42,6 +42,12 @@ class ControlDevicePresenter @Inject constructor(
     internal var statusSubscription: Disposable? = null
     internal var controlSubscription: Disposable? = null
 
+    interface ImuDataListener {
+        fun onImuDataReceived(imuData: Map<String, Float>)
+    }
+
+    var imuDataListener: ImuDataListener? = null
+
     override fun create() {
         Log.d("ControlDevicePresenter", "create() called")
     }
@@ -172,6 +178,21 @@ class ControlDevicePresenter @Inject constructor(
                         "accelerometer=${imuData.accelerometer.contentToString()}, " +
                         "gyroscope=${imuData.gyroscope.contentToString()}")
                 view.updateImuData(imuData.orientation, imuData.accelerometer, imuData.gyroscope)
+
+                val imuDataMap = mapOf(
+                    "orientationW" to imuData.orientation[0],
+                    "orientationX" to imuData.orientation[1],
+                    "orientationY" to imuData.orientation[2],
+                    "orientationZ" to imuData.orientation[3],
+                    "accelerometerX" to imuData.accelerometer[0],
+                    "accelerometerY" to imuData.accelerometer[1],
+                    "accelerometerZ" to imuData.accelerometer[2],
+                    "gyroscopeX" to imuData.gyroscope[0],
+                    "gyroscopeY" to imuData.gyroscope[1],
+                    "gyroscopeZ" to imuData.gyroscope[2]
+                )
+
+                imuDataListener?.onImuDataReceived(imuDataMap)
             }, { error: Throwable ->
                 Log.e(TAG, "Error receiving IMU data", error)
             })

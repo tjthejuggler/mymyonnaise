@@ -11,5 +11,6 @@
     <dimen name="default_margin">@dimen/quadruple_grid_size</dimen>
     <dimen name="content_keyline">@dimen/eighteen_grid_size</dimen>
     <dimen name="default_image_size">@dimen/ten_grid_size</dimen>
+    <dimen name="preview_circle_size">48dp</dimen>
 
 </resources>

@@ -23,14 +23,36 @@ class ControlDeviceFragment : BaseFragment<ControlDeviceContract.Presenter>(), C
     @Inject
     lateinit var controlDevicePresenter: ControlDevicePresenter
 
+    private var pendingImuDataListener: ControlDevicePresenter.ImuDataListener? = null
+
+
+
+    fun setImuDataListener(listener: ControlDevicePresenter.ImuDataListener) {
+        controlDevicePresenter.imuDataListener = listener
+    }
+
     private var _binding: LayoutControlDeviceBinding? = null
     private val binding get() = _binding!!
 
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        Log.d("ControlDeviceFragment", "onAttach() called")
         AndroidSupportInjection.inject(this)
         attachPresenter(controlDevicePresenter)
+
+        // Set the pending listener if there is one
+        pendingImuDataListener?.let { listener ->
+            controlDevicePresenter.imuDataListener = listener
+            pendingImuDataListener = null
+        }
+    }
+
+    fun setImuDataListenerWhenReady(listener: ControlDevicePresenter.ImuDataListener) {
+        if (::controlDevicePresenter.isInitialized) {
+            controlDevicePresenter.imuDataListener = listener
+        } else {
+            pendingImuDataListener = listener
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

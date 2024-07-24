@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/previewCirclesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="16dp"/>
+
+        <Spinner
+            android:id="@+id/ballIpSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <EditText
+            android:id="@+id/newIpEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Enter new IP"
+            app:layout_constraintTop_toBottomOf="@id/ballIpSpinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/addIpButton"/>
+
+        <Button
+            android:id="@+id/addIpButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add"
+            app:layout_constraintTop_toBottomOf="@id/ballIpSpinner"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <Button
+            android:id="@+id/removeIpButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remove"
+            app:layout_constraintTop_toBottomOf="@id/newIpEditText"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <CheckBox
+            android:id="@+id/orientationWCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orientation W"
+            app:layout_constraintTop_toBottomOf="@id/removeIpButton"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/orientationWLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orientation W"
+            app:layout_constraintTop_toBottomOf="@id/orientationWCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/orientationWLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/orientationWLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/orientationWHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/orientationWLabel"
+            app:layout_constraintStart_toEndOf="@id/orientationWLowColor"
+            android:layout_marginStart="16dp"/>
+
+        <CheckBox
+            android:id="@+id/orientationXCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orientation X"
+            app:layout_constraintTop_toBottomOf="@id/orientationWHighColor"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/orientationXLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orientation X"
+            app:layout_constraintTop_toBottomOf="@id/orientationXCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/orientationXLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/orientationXLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/orientationXHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/orientationXLabel"
+            app:layout_constraintStart_toEndOf="@id/orientationXLowColor"
+            android:layout_marginStart="16dp"/>
+
+        <CheckBox
+            android:id="@+id/orientationYCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orientation Y"
+            app:layout_constraintTop_toBottomOf="@id/orientationXHighColor"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/orientationYLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orientation Y"
+            app:layout_constraintTop_toBottomOf="@id/orientationYCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/orientationYLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/orientationYLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/orientationYHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/orientationYLabel"
+            app:layout_constraintStart_toEndOf="@id/orientationYLowColor"
+            android:layout_marginStart="16dp"/>
+
+        <CheckBox
+            android:id="@+id/orientationZCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orientation Z"
+            app:layout_constraintTop_toBottomOf="@id/orientationYHighColor"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/orientationZLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Orientation Z"
+            app:layout_constraintTop_toBottomOf="@id/orientationZCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/orientationZLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/orientationZLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/orientationZHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/orientationZLabel"
+            app:layout_constraintStart_toEndOf="@id/orientationZLowColor"
+            android:layout_marginStart="16dp"/>
+
+        <CheckBox
+            android:id="@+id/accelerometerXCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accelerometer X"
+            app:layout_constraintTop_toBottomOf="@id/orientationZHighColor"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/accelerometerXLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accelerometer X"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerXCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/accelerometerXLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerXLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/accelerometerXHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerXLabel"
+            app:layout_constraintStart_toEndOf="@id/accelerometerXLowColor"
+            android:layout_marginStart="16dp"/>
+
+        <CheckBox
+            android:id="@+id/accelerometerYCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accelerometer Y"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerXHighColor"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/accelerometerYLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accelerometer Y"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerYCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/accelerometerYLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerYLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/accelerometerYHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerYLabel"
+            app:layout_constraintStart_toEndOf="@id/accelerometerYLowColor"
+            android:layout_marginStart="16dp"/>
+
+        <CheckBox
+            android:id="@+id/accelerometerZCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accelerometer Z"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerYHighColor"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/accelerometerZLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accelerometer Z"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerZCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/accelerometerZLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerZLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/accelerometerZHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerZLabel"
+            app:layout_constraintStart_toEndOf="@id/accelerometerZLowColor"
+            android:layout_marginStart="16dp"/>
+
+        <CheckBox
+            android:id="@+id/gyroscopeXCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gyroscope X"
+            app:layout_constraintTop_toBottomOf="@id/accelerometerZHighColor"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/gyroscopeXLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gyroscope X"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeXCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/gyroscopeXLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeXLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/gyroscopeXHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeXLabel"
+            app:layout_constraintStart_toEndOf="@id/gyroscopeXLowColor"
+            android:layout_marginStart="16dp"/>
+
+        <CheckBox
+            android:id="@+id/gyroscopeYCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gyroscope Y"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeXHighColor"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/gyroscopeYLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gyroscope Y"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeYCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/gyroscopeYLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeYLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/gyroscopeYHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeYLabel"
+            app:layout_constraintStart_toEndOf="@id/gyroscopeYLowColor"
+            android:layout_marginStart="16dp"/>
+
+        <CheckBox
+            android:id="@+id/gyroscopeZCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gyroscope Z"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeYHighColor"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/gyroscopeZLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gyroscope Z"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeZCheckBox"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"/>
+
+        <Button
+            android:id="@+id/gyroscopeZLowColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Low Color"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeZLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/gyroscopeZHighColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High Color"
+            app:layout_constraintTop_toBottomOf="@id/gyroscopeZLabel"
+            app:layout_constraintStart_toEndOf="@id/gyroscopeZLowColor"
+            android:layout_marginStart="16dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

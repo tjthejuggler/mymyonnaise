@@ -24,6 +24,7 @@ import dagger.android.HasAndroidInjector
 import dagger.android.support.DaggerAppCompatActivity
 import it.ncorti.emgvisualizer.R
 import it.ncorti.emgvisualizer.databinding.ActivityMainBinding
+import it.ncorti.emgvisualizer.ui.balls.BallsFragment
 import it.ncorti.emgvisualizer.ui.control.ControlDeviceFragment
 import it.ncorti.emgvisualizer.ui.export.ExportFragment
 import it.ncorti.emgvisualizer.ui.graph.GraphFragment
@@ -45,6 +46,9 @@ class MainActivity : DaggerAppCompatActivity() {
 
     override fun androidInjector(): AndroidInjector<Any> = androidInjector
 
+    private lateinit var controlDeviceFragment: ControlDeviceFragment
+    private lateinit var ballsFragment: BallsFragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -61,21 +65,29 @@ class MainActivity : DaggerAppCompatActivity() {
 
         setSupportActionBar(binding.newToolbar)
 
+        controlDeviceFragment = ControlDeviceFragment.newInstance()
+        ballsFragment = BallsFragment.newInstance()
+
         val fragmentList = listOf(
             ScanDeviceFragment.newInstance(),
-            ControlDeviceFragment.newInstance(),
+            controlDeviceFragment,
             GraphFragment.newInstance(),
+            ballsFragment,
             ExportFragment.newInstance()
         )
         binding.viewPager.adapter = MyAdapter(supportFragmentManager, fragmentList)
 
-        binding.viewPager.offscreenPageLimit = 3
+        binding.viewPager.offscreenPageLimit = 4  // Update this line
         binding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             var prevMenuItem: MenuItem? = null
 
             override fun onPageScrollStateChanged(state: Int) {}
+
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
             override fun onPageSelected(position: Int) {
+                if (position == 1) { // ControlDeviceFragment position
+                    setupImuDataCommunication()
+                }
                 if (prevMenuItem != null) {
                     prevMenuItem?.isChecked = false
                 } else {
@@ -91,9 +103,18 @@ class MainActivity : DaggerAppCompatActivity() {
                 R.id.item_scan -> binding.viewPager.currentItem = 0
                 R.id.item_control -> navigateToControlDevice()
                 R.id.item_graph -> binding.viewPager.currentItem = 2
-                R.id.item_export -> binding.viewPager.currentItem = 3
+                R.id.item_balls -> binding.viewPager.currentItem = 3  // Add this line
+                R.id.item_export -> binding.viewPager.currentItem = 4  // Update this line
             }
             true
+        }
+
+
+    }
+
+    private fun setupImuDataCommunication() {
+        if (::controlDeviceFragment.isInitialized && ::ballsFragment.isInitialized) {
+            controlDeviceFragment.setImuDataListenerWhenReady(ballsFragment)
         }
     }
 
@@ -147,8 +168,10 @@ class MainActivity : DaggerAppCompatActivity() {
 
 
 
-    class MyAdapter(fm: FragmentManager, private val fragmentList: List<Fragment>) : FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+
+    inner class MyAdapter(fm: FragmentManager, private val fragmentList: List<Fragment>) : FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
         override fun getCount(): Int = fragmentList.size
         override fun getItem(position: Int): Fragment = fragmentList[position]
+        override fun getPageTitle(position: Int): CharSequence? = "Page $position"
     }
 }
