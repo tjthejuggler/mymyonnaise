@@ -77,6 +77,7 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
             val slider = rangeSliders[dataPoint] ?: return@forEach
             val marker = currentValueMarkers[dataPoint] ?: return@forEach
             val (min, max) = rangeValues[dataPoint] ?: return@forEach
+            val colors = colorButtons[ballIpSpinner.selectedItem as? String]?.get(dataPoint) ?: return@forEach
 
             val normalizedValue = (value - slider.valueFrom) / (slider.valueTo - slider.valueFrom)
             val markerX = slider.left + (slider.width * normalizedValue).toInt()
@@ -90,14 +91,22 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
 
             marker.visibility = View.VISIBLE
 
-            // Update marker color based on whether it's within the selected range
-            if (value < min || value > max) {
-                marker.setBackgroundColor(Color.GRAY)
-            } else {
-                marker.setBackgroundColor(Color.RED)
+            // Calculate the color based on the current value
+            val markerColor = when {
+                value < min -> colors.first // Low color
+                value > max -> colors.second // High color
+                else -> {
+                    // Interpolate between low and high colors
+                    val t = (value - min) / (max - min)
+                    interpolateColor(colors.first, colors.second, t)
+                }
             }
+
+            marker.setBackgroundColor(markerColor)
         }
     }
+
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_balls, container, false)
@@ -307,6 +316,7 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
             .setPositiveButton("Ok") { _, selectedColor, _ ->
                 updateButtonColor(selectedIp, dataPoint, isLowColor, selectedColor)
                 updateBallColor(selectedIp)
+                updateCurrentValueMarkers(lastImuData) // Add this line
             }
             .setNegativeButton("Cancel") { _, _ -> }
             .build()
@@ -451,10 +461,23 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
         }
     }
 
-    private fun interpolateColor(lowColor: Int, highColor: Int, fraction: Float): Int {
-        val r = (Color.red(lowColor) * (1 - fraction) + Color.red(highColor) * fraction).toInt().coerceIn(0, 255)
-        val g = (Color.green(lowColor) * (1 - fraction) + Color.green(highColor) * fraction).toInt().coerceIn(0, 255)
-        val b = (Color.blue(lowColor) * (1 - fraction) + Color.blue(highColor) * fraction).toInt().coerceIn(0, 255)
-        return Color.rgb(r, g, b)
+    // Add this helper function to interpolate between two colors
+    private fun interpolateColor(startColor: Int, endColor: Int, fraction: Float): Int {
+        val startA = Color.alpha(startColor)
+        val startR = Color.red(startColor)
+        val startG = Color.green(startColor)
+        val startB = Color.blue(startColor)
+
+        val endA = Color.alpha(endColor)
+        val endR = Color.red(endColor)
+        val endG = Color.green(endColor)
+        val endB = Color.blue(endColor)
+
+        val a = (startA + (endA - startA) * fraction).toInt()
+        val r = (startR + (endR - startR) * fraction).toInt()
+        val g = (startG + (endG - startG) * fraction).toInt()
+        val b = (startB + (endB - startB) * fraction).toInt()
+
+        return Color.argb(a, r, g, b)
     }
 }
