@@ -81,7 +81,13 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
             val normalizedValue = (value - slider.valueFrom) / (slider.valueTo - slider.valueFrom)
             val markerX = slider.left + (slider.width * normalizedValue).toInt()
 
+            // Get the Y position of the slider
+            val sliderY = slider.y
+
+            // Set both X and Y positions of the marker
             marker.x = markerX.toFloat() - marker.width / 2
+            marker.y = sliderY + (slider.height - marker.height) / 2 // Center vertically on the slider
+
             marker.visibility = View.VISIBLE
 
             // Update marker color based on whether it's within the selected range
@@ -144,7 +150,7 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
             // Add current value marker
             val marker = View(context).apply {
                 layoutParams = FrameLayout.LayoutParams(8, 40).apply {
-                    gravity = Gravity.CENTER_VERTICAL
+                    gravity = Gravity.NO_GRAVITY  // Changed from CENTER_VERTICAL to NO_GRAVITY
                 }
                 setBackgroundColor(Color.RED)
                 visibility = View.INVISIBLE
