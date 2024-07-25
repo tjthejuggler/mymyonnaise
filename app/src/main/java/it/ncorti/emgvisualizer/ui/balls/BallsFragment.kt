@@ -3,6 +3,7 @@ package it.ncorti.emgvisualizer.ui.balls
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,6 +59,9 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
         "gyroscopeY" to Pair(-500f, 500f),
         "gyroscopeZ" to Pair(-500f, 500f)
     )
+
+    private val currentValueMarkers = mutableMapOf<String, View>()
+
     companion object {
         fun newInstance() = BallsFragment()
     }
@@ -65,7 +69,30 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
         lastImuData = imuData
         updateBallColors(imuData)
         updateImuLabels(imuData)
+        updateCurrentValueMarkers(imuData)
     }
+
+    private fun updateCurrentValueMarkers(imuData: Map<String, Float>) {
+        imuData.forEach { (dataPoint, value) ->
+            val slider = rangeSliders[dataPoint] ?: return@forEach
+            val marker = currentValueMarkers[dataPoint] ?: return@forEach
+            val (min, max) = rangeValues[dataPoint] ?: return@forEach
+
+            val normalizedValue = (value - slider.valueFrom) / (slider.valueTo - slider.valueFrom)
+            val markerX = slider.left + (slider.width * normalizedValue).toInt()
+
+            marker.x = markerX.toFloat() - marker.width / 2
+            marker.visibility = View.VISIBLE
+
+            // Update marker color based on whether it's within the selected range
+            if (value < min || value > max) {
+                marker.setBackgroundColor(Color.GRAY)
+            } else {
+                marker.setBackgroundColor(Color.RED)
+            }
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_balls, container, false)
     }
@@ -113,6 +140,17 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
 
             // Initialize range values
             rangeValues[dataPoint] = Pair(min, max)
+
+            // Add current value marker
+            val marker = View(context).apply {
+                layoutParams = FrameLayout.LayoutParams(8, 40).apply {
+                    gravity = Gravity.CENTER_VERTICAL
+                }
+                setBackgroundColor(Color.RED)
+                visibility = View.INVISIBLE
+            }
+            (slider.parent as? ViewGroup)?.addView(marker)
+            currentValueMarkers[dataPoint] = marker
         }
     }
 
@@ -323,14 +361,21 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
                 hasCheckedItem = true
                 val (lowColor, highColor) = colors[dataPoint] ?: return@forEach
                 val normalizedValue = normalizeImuValue(dataPoint, value)
-                val dataPointColor = interpolateColor(lowColor, highColor, normalizedValue)
-                interpolatedColor = blendColors(interpolatedColor, dataPointColor)
+                val dataPointColor = when {
+                    normalizedValue <= 0f -> lowColor
+                    normalizedValue >= 1f -> highColor
+                    else -> interpolateColor(lowColor, highColor, normalizedValue)
+                }
+                interpolatedColor = if (interpolatedColor == Color.GRAY) {
+                    dataPointColor
+                } else {
+                    blendColors(interpolatedColor, dataPointColor)
+                }
             }
         }
 
         if (hasCheckedItem) {
             updatePreviewCircle(selectedIp, interpolatedColor)
-            // We don't need to call sendColorChange here anymore, as it's called in updatePreviewCircle
         }
     }
 //    private fun normalizeImuValue(dataPoint: String, value: Float): Float {
@@ -343,7 +388,11 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
 //    }
     private fun normalizeImuValue(dataPoint: String, value: Float): Float {
         val (min, max) = rangeValues[dataPoint] ?: return 0.5f
-        return ((value - min) / (max - min)).coerceIn(0f, 1f)
+        return when {
+            value <= min -> 0f
+            value >= max -> 1f
+            else -> (value - min) / (max - min)
+        }
     }
     private fun blendColors(color1: Int, color2: Int): Int {
         val r = (Color.red(color1) + Color.red(color2)) / 2
@@ -373,20 +422,15 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
                 val (lowColor, highColor) = colorButtons[ip]?.get(dataPoint) ?: return@forEach
                 val normalizedValue = normalizeImuValue(dataPoint, lastImuData[dataPoint] ?: 0f)
 
-                // If low and high colors are the same, use that color directly
-                if (lowColor == highColor) {
-                    r += Color.red(lowColor)
-                    g += Color.green(lowColor)
-                    b += Color.blue(lowColor)
-                    totalWeight += 1f
-                } else {
-                    // Interpolate between low and high colors
-                    val dataPointColor = interpolateColor(lowColor, highColor, normalizedValue)
-                    r += Color.red(dataPointColor)
-                    g += Color.green(dataPointColor)
-                    b += Color.blue(dataPointColor)
-                    totalWeight += 1f
+                val dataPointColor = when {
+                    normalizedValue <= 0f -> lowColor
+                    normalizedValue >= 1f -> highColor
+                    else -> interpolateColor(lowColor, highColor, normalizedValue)
                 }
+                r += Color.red(dataPointColor)
+                g += Color.green(dataPointColor)
+                b += Color.blue(dataPointColor)
+                totalWeight += 1f
             }
         }
 
