@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Spinner
+                android:id="@+id/ball1IpSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/ball1ColorView"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Spinner
+                android:id="@+id/ball2IpSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/ball2ColorView"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Spinner
+                android:id="@+id/ball3IpSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/ball3ColorView"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button android:id="@+id/button_q" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Q" />
+            <Button android:id="@+id/button_w" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="W" />
+            <Button android:id="@+id/button_e" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="E" />
+            <Button android:id="@+id/button_r" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="R" />
+            <Button android:id="@+id/button_t" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="T" />
+            <Button android:id="@+id/button_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Y" />
+            <Button android:id="@+id/button_u" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="U" />
+            <Button android:id="@+id/button_i" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="I" />
+ </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button android:id="@+id/button_a" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="A" />
+            <Button android:id="@+id/button_s" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="S" />
+            <Button android:id="@+id/button_d" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="D" />
+            <Button android:id="@+id/button_f" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F" />
+            <Button android:id="@+id/button_g" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="G" />
+            <Button android:id="@+id/button_h" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="H" />
+            <Button android:id="@+id/button_j" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="J" />
+            <Button android:id="@+id/button_k" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="K" />
+</LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button android:id="@+id/button_z" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Z" />
+            <Button android:id="@+id/button_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="X" />
+            <Button android:id="@+id/button_c" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="C" />
+            <Button android:id="@+id/button_v" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="V" />
+            <Button android:id="@+id/button_b" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="B" />
+            <Button android:id="@+id/button_n" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="N" />
+            <Button android:id="@+id/button_m" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="M" />
+            <Button android:id="@+id/button_comma" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="," />
+            </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

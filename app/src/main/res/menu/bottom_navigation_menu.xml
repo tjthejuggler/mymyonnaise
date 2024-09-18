@@ -17,7 +17,11 @@
         android:icon="@drawable/ic_launcher_foreground"
         android:title="@string/balls" />
     <item
-        android:id="@+id/item_export"
+        android:id="@+id/item_ball_keys"
         android:icon="@drawable/ic_download"
-        android:title="@string/export" />
+        android:title="@string/ball_keys" />
+<!--    <item-->
+<!--        android:id="@+id/item_export"-->
+<!--        android:icon="@drawable/settings_gear_icon"-->
+<!--        android:title="@string/export" />-->
 </menu>

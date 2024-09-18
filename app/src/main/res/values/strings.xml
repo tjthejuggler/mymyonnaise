@@ -14,6 +14,7 @@
     <string name="graph">Graph</string>
     <string name="export">Export</string>
     <string name="balls">Balls</string>
+    <string name="ball_keys">Keys</string>
     <string name="unknown_device">Unknown Device</string>
     <string name="device_information">Device Information</string>
     <string name="device_name">Device Name</string>

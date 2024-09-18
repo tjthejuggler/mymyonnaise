@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -25,12 +26,13 @@ import dagger.android.support.DaggerAppCompatActivity
 import it.ncorti.emgvisualizer.R
 import it.ncorti.emgvisualizer.databinding.ActivityMainBinding
 import it.ncorti.emgvisualizer.ui.balls.BallsFragment
+import it.ncorti.emgvisualizer.ui.ballkeys.BallKeysFragment
 import it.ncorti.emgvisualizer.ui.control.ControlDeviceFragment
 import it.ncorti.emgvisualizer.ui.export.ExportFragment
 import it.ncorti.emgvisualizer.ui.graph.GraphFragment
 import it.ncorti.emgvisualizer.ui.scan.ScanDeviceFragment
 import javax.inject.Inject
-
+//test commit new computer
 private const val PREFS_GLOBAL = "global"
 private const val KEY_COMPLETED_ONBOARDING = "completed_onboarding"
 
@@ -48,6 +50,7 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private lateinit var controlDeviceFragment: ControlDeviceFragment
     private lateinit var ballsFragment: BallsFragment
+    private lateinit var ballKeysFragment: BallKeysFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -67,17 +70,19 @@ class MainActivity : DaggerAppCompatActivity() {
 
         controlDeviceFragment = ControlDeviceFragment.newInstance()
         ballsFragment = BallsFragment.newInstance()
+        ballKeysFragment = BallKeysFragment.newInstance()
 
         val fragmentList = listOf(
             ScanDeviceFragment.newInstance(),
             controlDeviceFragment,
             GraphFragment.newInstance(),
             ballsFragment,
-            ExportFragment.newInstance()
+            ballKeysFragment,
+            //ExportFragment.newInstance()
         )
         binding.viewPager.adapter = MyAdapter(supportFragmentManager, fragmentList)
 
-        binding.viewPager.offscreenPageLimit = 4  // Update this line
+        binding.viewPager.offscreenPageLimit = 5
         binding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             var prevMenuItem: MenuItem? = null
 
@@ -103,13 +108,23 @@ class MainActivity : DaggerAppCompatActivity() {
                 R.id.item_scan -> binding.viewPager.currentItem = 0
                 R.id.item_control -> navigateToControlDevice()
                 R.id.item_graph -> binding.viewPager.currentItem = 2
-                R.id.item_balls -> binding.viewPager.currentItem = 3  // Add this line
-                R.id.item_export -> binding.viewPager.currentItem = 4  // Update this line
+                R.id.item_balls -> binding.viewPager.currentItem = 3
+                R.id.item_ball_keys -> binding.viewPager.currentItem = 4
+                //R.id.item_export -> binding.viewPager.currentItem = 5
             }
             true
         }
+    }
 
-
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (binding.viewPager.currentItem == 4) { // BallKeysFragment position
+            val key = event?.unicodeChar?.toChar()
+            if (key != null) {
+                ballKeysFragment.onKeyPressed(key)
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     private fun setupImuDataCommunication() {
