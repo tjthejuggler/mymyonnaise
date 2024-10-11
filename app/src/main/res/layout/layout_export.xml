@@ -93,4 +93,11 @@
         android:layout_marginRight="@dimen/default_margin"
         android:text="@string/save"
         android:visibility="invisible" />
+
+    <Switch
+        android:id="@+id/switch_sensor_source"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use Phone Sensors" />
+
 </LinearLayout>

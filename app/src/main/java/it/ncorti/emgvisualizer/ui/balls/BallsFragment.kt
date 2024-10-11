@@ -1,8 +1,10 @@
 package it.ncorti.emgvisualizer.ui.balls
 
+import android.content.ContentValues.TAG
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -66,6 +68,7 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
         fun newInstance() = BallsFragment()
     }
     override fun onImuDataReceived(imuData: Map<String, Float>) {
+        Log.d(TAG, "Received IMU data: $imuData")
         lastImuData = imuData
         updateBallColors(imuData)
         updateImuLabels(imuData)
@@ -480,4 +483,6 @@ class BallsFragment : Fragment(), ControlDevicePresenter.ImuDataListener {
 
         return Color.argb(a, r, g, b)
     }
+
+
 }

@@ -11,6 +11,7 @@ import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Switch
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import dagger.android.support.AndroidSupportInjection
@@ -20,8 +21,13 @@ import it.ncorti.emgvisualizer.databinding.LayoutExportBinding
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
+import it.ncorti.emgvisualizer.SensorManager
+import androidx.core.app.ActivityCompat
+import androidx.preference.PreferenceManager
+
 
 private const val REQUEST_WRITE_EXTERNAL_CODE = 2
+private const val REQUEST_LOCATION_PERMISSION_CODE = 3
 
 class ExportFragment : BaseFragment<ExportContract.Presenter>(), ExportContract.View {
 
@@ -33,12 +39,15 @@ class ExportFragment : BaseFragment<ExportContract.Presenter>(), ExportContract.
     lateinit var exportPresenter: ExportPresenter
 
     private var fileContentToSave: String? = null
+
     private var _binding: LayoutExportBinding? = null
     private val binding get() = _binding!!
+    private lateinit var sensorManager: SensorManager
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         attachPresenter(exportPresenter)
+        sensorManager = SensorManager(context)
         super.onAttach(context)
     }
 
@@ -51,16 +60,57 @@ class ExportFragment : BaseFragment<ExportContract.Presenter>(), ExportContract.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonStartCollecting.setOnClickListener { exportPresenter.onCollectionTogglePressed() }
+        val switchSensorSource: Switch = binding.switchSensorSource
+        switchSensorSource.isChecked = sensorManager.isUsingPhoneSensors()
+
+        switchSensorSource.setOnCheckedChangeListener { _, isChecked ->
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            sharedPreferences.edit().putBoolean("use_phone_sensors", isChecked).apply()
+        }
+
+        binding.buttonStartCollecting.setOnClickListener {
+            val sensorData = sensorManager.getSensorData()
+            exportPresenter.onCollectionTogglePressed()
+            // Handle sensorData if needed
+        }
         binding.buttonResetCollecting.setOnClickListener { exportPresenter.onResetPressed() }
         binding.buttonShare.setOnClickListener { exportPresenter.onSharePressed() }
         binding.buttonSave.setOnClickListener { exportPresenter.onSavePressed() }
+    }
+
+    private fun startCollectingData() {
+        val sensorData = sensorManager.getSensorData()
+        exportPresenter.onCollectionTogglePressed()
+        // Handle sensorData if needed
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        when (requestCode) {
+            REQUEST_WRITE_EXTERNAL_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    fileContentToSave?.apply { writeToFile(this) }
+                } else {
+                    Toast.makeText(
+                        activity, getString(R.string.write_permission_denied_message),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            REQUEST_LOCATION_PERMISSION_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startCollectingData()
+                } else {
+                    Toast.makeText(activity, getString(R.string.location_permission_denied_message), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 
     override fun enableStartCollectingButton() {
         binding.buttonStartCollecting.isEnabled = true
@@ -147,18 +197,5 @@ class ExportFragment : BaseFragment<ExportContract.Presenter>(), ExportContract.
         Toast.makeText(activity, "Saved to: ${outfile.path}", Toast.LENGTH_LONG).show()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        when (requestCode) {
-            REQUEST_WRITE_EXTERNAL_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    fileContentToSave?.apply { writeToFile(this) }
-                } else {
-                    Toast.makeText(
-                        activity, getString(R.string.write_permission_denied_message),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
+
 }
